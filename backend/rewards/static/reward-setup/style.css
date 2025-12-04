@@ -1,0 +1,82 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f4f4f4;
+}
+
+header {
+    background: #222;
+    color: #fff;
+    padding: 1rem;
+}
+
+header h1 {
+    margin: 0 0 0.5rem 0;
+}
+
+nav {
+    margin-top: 0.5rem;
+}
+
+nav .tab-button {
+    margin-right: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+nav .tab-button[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+main {
+    padding: 1rem;
+}
+
+.tab {
+    display: none;
+    background: #fff;
+    padding: 1rem;
+    border-radius: 4px;
+}
+
+.tab.active {
+    display: block;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+input {
+    margin-left: 0.5rem;
+}
+
+button[type="submit"] {
+    margin-top: 0.5rem;
+    padding: 0.4rem 0.8rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.8rem;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 0.4rem 0.6rem;
+    text-align: left;
+}
+
+th {
+    background: #eee;
+}
+
+.message {
+    margin-top: 0.5rem;
+    color: red;
+}

@@ -16,7 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from rewards import views as rewards_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', rewards_views.index, name='home'),
+
+    #api endpoints
+    path('api/login/', rewards_views.api_login, name='api_login'),
+    path('api/account/', rewards_views.api_account, name='api_account'),
+    path('api/rewards/', rewards_views.api_rewards, name='api_rewards'),
+    path('api/stores/', rewards_views.api_stores, name='api_stores'),
 ]
