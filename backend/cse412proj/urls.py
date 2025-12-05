@@ -24,6 +24,7 @@ urlpatterns = [
 
     #api endpoints
     path('api/login/', rewards_views.api_login, name='api_login'),
+    path("api/register/", rewards_views.api_register, name="api_register"),
     path('api/account/', rewards_views.api_account, name='api_account'),
     path('api/rewards/', rewards_views.api_rewards, name='api_rewards'),
     path('api/stores/', rewards_views.api_stores, name='api_stores'),

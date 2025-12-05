@@ -1,5 +1,33 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
+
+class CustomUserManager(BaseUserManager):
+    def create_user(self, email, name, phone, password=None, **extra_fields):
+        """Create a regular user with email instead of username."""
+        if not email:
+            raise ValueError("Users must have an email address")
+
+        email = self.normalize_email(email)
+
+        user = self.model(
+            email=email,
+            name=name,
+            phone=phone,
+            **extra_fields
+        )
+
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, name, phone, password=None, **extra_fields):
+        """Create a superuser."""
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("is_active", True)
+        
+        return self.create_user(email, name, phone, password, **extra_fields)
+
 
 class User(AbstractUser):
     username = None 
@@ -40,6 +68,8 @@ class User(AbstractUser):
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name', 'phone']
+
+    objects = CustomUserManager()
 
     class Meta:
         db_table = 'users'

@@ -3,6 +3,7 @@ const API_LOGIN   = "/api/login/";
 const API_ACCOUNT = "/api/account/";
 const API_REWARDS = "/api/rewards/";
 const API_STORES  = "/api/stores/";
+const API_REGISTER = "/api/register/";
 
 let currentUser = null;
 
@@ -154,3 +155,48 @@ async function loadStores() {
         console.error(err);
     }
 }
+
+// Register
+const registerForm = document.getElementById("register-form");
+const registerMessage = document.getElementById("register-message");
+
+registerForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    registerMessage.textContent = "";
+    registerMessage.style.color = "red";
+
+    const name = document.getElementById("reg-name").value;
+    const email = document.getElementById("reg-email").value;
+    const phone = document.getElementById("reg-phone").value;
+    const password = document.getElementById("reg-password").value;
+
+    try {
+        const res = await fetch(API_REGISTER, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name, email, phone, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            registerMessage.textContent = data.error || "Registration failed.";
+            return;
+        }
+
+        registerMessage.style.color = "green";
+        registerMessage.textContent = "Account created! You can now log in.";
+
+        setTimeout(() => {
+            tabs.forEach(t => t.classList.remove("active"));
+            document.getElementById("login-tab").classList.add("active");
+        }, 1500);
+
+    } catch (err) {
+        console.error(err);
+        registerMessage.textContent = "Network or server error.";
+    }
+});
+

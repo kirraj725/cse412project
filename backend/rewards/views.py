@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login
 from django.db.models import Sum
+import json
 from .models import User, Vendor, UserTransaction, Reward, Ledger
 
 
@@ -64,6 +65,44 @@ def _require_auth(request):
         return JsonResponse({"detail": "Authentication required"}, status=401)
     return None
 
+
+@csrf_exempt
+def api_register(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=400)
+
+    try:
+        data = json.loads(request.body)
+    except:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    name = data.get("name")
+    email = data.get("email")
+    phone = data.get("phone")
+    password = data.get("password")
+
+    if not all([name, email, phone, password]):
+        return JsonResponse({"error": "All fields required"}, status=400)
+
+    if User.objects.filter(email=email).exists():
+        return JsonResponse({"error": "Email already registered"}, status=400)
+
+    user = User.objects.create_user(
+        email=email,
+        name=name,
+        phone=phone,
+        password=password
+    )
+
+    return JsonResponse({
+        "message": "User registered successfully",
+        "user": {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "phone": user.phone,
+        }
+    }, status=201)
 
 def api_account(request):
     """

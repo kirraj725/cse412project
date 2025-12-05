@@ -10,6 +10,7 @@
 <header>
     <h1>Rewards Dashboard</h1>
     <nav>
+        <button class="tab-button" data-tab="register-tab">Register</button>
         <button class="tab-button" data-tab="login-tab">Log In</button>
         <button class="tab-button" data-tab="account-tab" disabled>Account</button>
         <button class="tab-button" data-tab="rewards-tab" disabled>Rewards</button>
@@ -17,6 +18,31 @@
     </nav>
 </header>
 <main>
+    <section id="register-tab" class="tab">
+        <h2>Create an Account</h2>
+        <form id="register-form">
+            {% csrf_token %}
+            <label>
+                Name:
+                <input type="text" id="reg-name" required>
+            </label>
+            <label>
+                Email:
+                <input type="email" id="reg-email" required>
+            </label>
+            <label>
+                Phone:
+                <input type="text" id="reg-phone" required>
+            </label>
+            <label>
+                Password:
+                <input type="password" id="reg-password" required>
+            </label>
+            <button type="submit">Register</button>
+        </form>
+        <p id="register-message" class="message"></p>
+    </section>
+    
     <section id="login-tab" class="tab active">
         <h2>Log In</h2>
         <form id="login-form">
