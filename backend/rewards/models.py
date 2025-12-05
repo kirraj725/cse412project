@@ -9,40 +9,40 @@ class User(AbstractUser):
     # U_USERID
     id = models.AutoField(
         primary_key=True, 
-        db_column='U_USERID'
+        db_column='u_userid'
     )
     # U_EMAIL
     email = models.EmailField(
         unique=True, 
         max_length=255, 
-        db_column='U_EMAIL'
+        db_column='u_email'
     )
     # U_NAME 
     name = models.CharField(
         max_length=25, 
-        db_column='U_NAME'
+        db_column='u_name'
     )
     # U_PHONE 
     phone = models.CharField(
         max_length=15, 
-        db_column='U_PHONE'
+        db_column='u_phone'
     )
     # U_PASSWORD
     password = models.CharField(
         max_length=128, 
-        db_column='U_PASSWORD'
+        db_column='u_password'
     )
     # U_TOTALPOINTS
     total_points = models.IntegerField(
         default=0, 
-        db_column='U_TOTALPOINTS'
+        db_column='u_totalpoints'
     )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name', 'phone']
 
     class Meta:
-        db_table = 'USERS'
+        db_table = 'users'
 
     def __str__(self):
         return f"{self.name} ({self.email})"
@@ -51,21 +51,21 @@ class Vendor(models.Model):
     # V_VENDORID
     vendor_id = models.AutoField(
         primary_key=True, 
-        db_column='V_VENDORID'
+        db_column='v_vendorid'
     )
     # V_NAME
     name = models.CharField(
         max_length=35, 
-        db_column='V_NAME'
+        db_column='v_name'
     )
     # V_CATEGORY
     category = models.CharField(
         max_length=15, 
-        db_column='V_CATEGORY'
+        db_column='v_category'
     )
 
     class Meta:
-        db_table = 'VENDORS'
+        db_table = 'vendors'
         verbose_name = 'Vendor'
         verbose_name_plural = 'Vendors'
 
@@ -77,19 +77,19 @@ class UserTransaction(models.Model):
     # T_TRANSID
     trans_id = models.AutoField(
         primary_key=True, 
-        db_column='T_TRANSID'
+        db_column='t_transid'
     )
     # T_USERID
     user = models.ForeignKey(
         User, 
         on_delete=models.CASCADE, 
-        db_column='T_USERID'
+        db_column='t_userid'
     )
     # T_VENDORID 
     vendor = models.ForeignKey(
         Vendor, 
         on_delete=models.CASCADE, 
-        db_column='T_VENDORID'
+        db_column='t_vendorid'
     )
     # T_TYPE
     # we use choices here to enforce data integrity in the app layer
@@ -100,24 +100,24 @@ class UserTransaction(models.Model):
     transaction_type = models.CharField(
         max_length=10, 
         choices=TRANSACTION_TYPES,
-        db_column='T_TYPE'
+        db_column='t_type'
     )
     # T_AMOUNT (DECIMAL(15,2))
     amount = models.DecimalField(
         max_digits=15, 
         decimal_places=2, 
-        db_column='T_AMOUNT'
+        db_column='t_amount'
     )
     # T_LOCATION
     location = models.CharField(
         max_length=50, 
-        db_column='T_LOCATION'
+        db_column='t_location'
     )
     # T_DATE
-    date = models.DateField(db_column='T_DATE')
+    date = models.DateField(db_column='t_date')
 
     class Meta:
-        db_table = 'USER_TRANSACTIONS'
+        db_table = 'user_transactions'
         verbose_name = 'User Transaction'
         verbose_name_plural = 'User Transactions'
 
@@ -129,33 +129,33 @@ class Reward(models.Model):
     # R_REWARDID
     reward_id = models.AutoField(
         primary_key=True, 
-        db_column='R_REWARDID'
+        db_column='r_rewardid'
     )
     # R_USERID
     user = models.ForeignKey(
         User, 
         on_delete=models.CASCADE, 
-        db_column='R_USERID'
+        db_column='r_userid'
     )
     # R_VENDORID
     vendor = models.ForeignKey(
         Vendor, 
         on_delete=models.CASCADE, 
-        db_column='R_VENDORID'
+        db_column='r_vendorid'
     )
     # R_BALANCE (DECIMAL(8,2))
     balance = models.DecimalField(
         max_digits=8, 
         decimal_places=2, 
-        db_column='R_BALANCE'
+        db_column='r_balance'
     )
     # R_EXPIRATION
     expiration = models.DateField(
-        db_column='R_EXPIRATION'
+        db_column='r_expiration'
     )
 
     class Meta:
-        db_table = 'REWARDS'
+        db_table = 'rewards'
         verbose_name = 'Reward'
         verbose_name_plural = 'Rewards'
 
@@ -167,13 +167,13 @@ class Ledger(models.Model):
     # L_LEDGERID
     ledger_id = models.AutoField(
         primary_key=True, 
-        db_column='L_LEDGERID'
+        db_column='l_ledgerid'
     )
     # L_USERID
     user = models.ForeignKey(
         User, 
         on_delete=models.CASCADE, 
-        db_column='L_USERID'
+        db_column='l_userid'
     )
     # L_TRANSID
     transaction = models.ForeignKey(
@@ -181,30 +181,30 @@ class Ledger(models.Model):
         on_delete=models.SET_NULL, 
         null=True,
         blank=True,
-        db_column='L_TRANSID'
+        db_column='l_transid'
     )
     # L_CHANGEAMT
     change_amount = models.IntegerField(
-        db_column='L_CHANGEAMT'
+        db_column='l_changeamt'
     )
     # L_REASON
     reason = models.CharField(
         max_length=20, 
-        db_column='L_REASON'
+        db_column='l_reason'
     )
     # L_DATE
     date = models.DateField(
-        db_column='L_DATE'
+        db_column='l_date'
     )
     # L_EXPIRATION
     expiration_date = models.DateField(
         null=True, 
         blank=True, 
-        db_column='L_EXPIRATION'
+        db_column='l_expiration'
     )
 
     class Meta:
-        db_table = 'LEDGER'
+        db_table = 'ledger'
         verbose_name = 'Ledger Entry'
         verbose_name_plural = 'Ledger Entries'
 
