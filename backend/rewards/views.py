@@ -160,10 +160,10 @@ def api_rewards(request):
     ledger_list = []
     for entry in ledger_qs:
         ledger_list.append({
-            "change_amount": entry.change_amount,
+            "change_amount": f"+{entry.change_amount}" if entry.change_amount > 0 else str(entry.change_amount),
             "reason": entry.reason,
             "date": entry.date.isoformat(),
-            "expiration_date": entry.expiration_date.isoformat() if entry.expiration_date else None,
+            "expiration_date": entry.expiration_date.isoformat() if entry.expiration_date else "-",
         })
 
     # Rewards per vendor
@@ -220,6 +220,80 @@ def api_stores(request):
 
     return JsonResponse(result, safe=False)
 
+
+@csrf_exempt
+def api_exchange(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Authentication required"}, status=401)
+
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+    except:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    vendor_id = data.get("vendor_id")
+    credit_amount = data.get("credit_amount") 
+
+    if not vendor_id or not credit_amount:
+        return JsonResponse({"error": "Missing fields"}, status=400)
+
+    credit_amount = int(credit_amount)
+
+    # conversion table
+    cost_map = {
+        5: 40000,
+        10: 75000,
+        15: 110000,
+        25: 180000,
+        50: 350000,
+    }
+
+    if credit_amount not in cost_map:
+        return JsonResponse({"error": "Invalid credit selection"}, status=400)
+
+    cost_points = cost_map[credit_amount]
+
+    user = request.user
+
+    if user.total_points < cost_points:
+        return JsonResponse({"error": "Not enough points"}, status=400)
+
+    user.total_points -= cost_points
+    user.save()
+
+    vendor = Vendor.objects.get(pk=vendor_id)
+    reward_obj, _ = Reward.objects.get_or_create(
+        user=user,
+        vendor=vendor,
+        defaults={"balance": 0, "expiration": "2026-12-31"}
+    )
+
+    reward_obj.balance += credit_amount
+    reward_obj.save()
+
+    from datetime import date
+    Ledger.objects.create(
+        user=user,
+        transaction=None,
+        change_amount=-cost_points,
+        reason=f"${credit_amount} Credit Redemption",
+        date=date.today(),
+        expiration_date=None
+    )
+
+    return JsonResponse({
+        "message": f"Successfully redeemed {cost_points} points for ${credit_amount} credit at {vendor.name}.",
+        "remaining_points": user.total_points,
+        "credit_added": credit_amount,
+        "vendor_name": vendor.name,
+    })
+
+def api_vendors(request):
+    vendors = Vendor.objects.all().values("vendor_id", "name", "category")
+    return JsonResponse(list(vendors), safe=False)
 
 @csrf_exempt
 def api_logout(request):

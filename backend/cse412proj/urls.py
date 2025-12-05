@@ -28,5 +28,7 @@ urlpatterns = [
     path('api/account/', rewards_views.api_account, name='api_account'),
     path('api/rewards/', rewards_views.api_rewards, name='api_rewards'),
     path('api/stores/', rewards_views.api_stores, name='api_stores'),
+    path("api/vendors/", rewards_views.api_vendors, name='api_vendors'),
+    path("api/exchange/", rewards_views.api_exchange, name="api_exchange"),
     path("api/logout/", rewards_views.api_logout, name="api_logout"),
 ]

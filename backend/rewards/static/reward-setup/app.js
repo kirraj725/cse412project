@@ -3,7 +3,9 @@ const API_LOGIN   = "/api/login/";
 const API_ACCOUNT = "/api/account/";
 const API_REWARDS = "/api/rewards/";
 const API_STORES  = "/api/stores/";
+const API_VENDORS  = "/api/vendors/";
 const API_REGISTER = "/api/register/";
+const API_EXCHANGE = "/api/exchange/";
 
 let currentUser = null;
 
@@ -65,6 +67,28 @@ function resetForms() {
     registerMessage.textContent = "";
 }
 
+function showModal(message) {
+    return new Promise(resolve => {
+        const overlay = document.getElementById("modal-overlay");
+        const text = document.getElementById("modal-text");
+        const btnConfirm = document.getElementById("modal-confirm");
+        const btnCancel = document.getElementById("modal-cancel");
+
+        text.textContent = message;
+        overlay.style.display = "flex";
+
+        const cleanup = (result) => {
+            overlay.style.display = "none";
+            btnConfirm.onclick = null;
+            btnCancel.onclick = null;
+            resolve(result);
+        };
+
+        btnConfirm.onclick = () => cleanup(true);
+        btnCancel.onclick = () => cleanup(false);
+    });
+}
+
 
 // Login
 const loginForm = document.getElementById("login-form");
@@ -103,6 +127,7 @@ loginForm.addEventListener("submit", async (e) => {
         await loadAccount();
         await loadRewards();
         await loadStores();
+        await loadVendorsForExchange();
 
         tabs.forEach(t => t.classList.remove("active"));
         document.getElementById("account-tab").classList.add("active");
@@ -161,16 +186,19 @@ async function loadRewards() {
 
         const ledgerBody = document.querySelector("#ledger-table tbody");
         ledgerBody.innerHTML = "";
+        
         (data.ledger || []).forEach(entry => {
             const tr = document.createElement("tr");
             tr.innerHTML = `
                 <td>${entry.change_amount}</td>
                 <td>${entry.reason}</td>
                 <td>${entry.date}</td>
-                <td>${entry.expiration_date || ""}</td>
+                <td class="expiration-col ${entry.expiration_date === '-' ? 'center-dash' : ''}">
+                    ${entry.expiration_date}
+                </td>
             `;
             ledgerBody.appendChild(tr);
-        });
+        });        
 
         const rewardsBody = document.querySelector("#rewards-table tbody");
         rewardsBody.innerHTML = "";
@@ -183,9 +211,53 @@ async function loadRewards() {
             `;
             rewardsBody.appendChild(tr);
         });
+
+        updateExchangeOptions();
+
     } catch (err) {
         console.error(err);
     }
+}
+
+function updateExchangeOptions() {
+    const totalPoints = Number(document.getElementById("total-points").textContent);
+    const amountSelect = document.getElementById("exchange-amount");
+
+    const costs = {
+        5: 40000,
+        10: 75000,
+        15: 110000,
+        25: 180000,
+        50: 350000
+    };
+
+    [...amountSelect.options].forEach(opt => {
+        const cost = costs[opt.value];
+        if (totalPoints < cost) {
+            opt.disabled = true;
+            opt.textContent = `$${opt.value} Credit — Need ${cost} pts`;
+        } else {
+            opt.disabled = false;
+            opt.textContent = `$${opt.value} Credit`;
+        }
+    });
+}
+
+async function loadVendorsForExchange() {
+    const res = await fetch(API_VENDORS);
+    if (!res.ok) return;
+
+    const data = await res.json();
+    const dropdown = document.getElementById("exchange-vendor");
+
+    dropdown.innerHTML = `<option value="" disabled selected>Select…</option>`;
+
+    data.forEach(v => {
+        const opt = document.createElement("option");
+        opt.value = v.vendor_id;
+        opt.textContent = v.name;
+        dropdown.appendChild(opt);
+    });
 }
 
 // Stores tab
@@ -204,6 +276,7 @@ async function loadStores() {
                 <td>${item.vendor_name}</td>
                 <td>${item.category || ""}</td>
                 <td>${Number(item.total_spent).toFixed(2)}</td>
+                <td>${item.date || ""}</td>
             `;
             tbody.appendChild(tr);
         });
@@ -256,3 +329,50 @@ registerForm.addEventListener("submit", async (e) => {
     }
 });
 
+const exchangeForm = document.getElementById("exchange-form");
+const exchangeMessage = document.getElementById("exchange-message");
+
+exchangeForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const vendor_id = document.getElementById("exchange-vendor").value;
+    const credit_amount_raw = document.getElementById("exchange-amount").value;
+    
+    if (!vendor_id) {
+        exchangeMessage.style.color = "red";
+        exchangeMessage.textContent = "Please choose a vendor.";
+        return;
+    }
+    
+    if (!credit_amount_raw) {
+        exchangeMessage.style.color = "red";
+        exchangeMessage.textContent = "Please choose a credit amount.";
+        return;
+    }
+    
+    const credit_amount = parseInt(credit_amount_raw);    
+
+    const confirmed = await showModal(`Are you sure you want to redeem $${credit_amount} store credit?`);
+    if (!confirmed) return;    
+
+    const res = await fetch("/api/exchange/", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ vendor_id, credit_amount })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+        exchangeMessage.style.color = "red";
+        exchangeMessage.textContent = data.error;
+        return;
+    }
+
+    exchangeMessage.style.color = "green";
+    exchangeMessage.textContent = data.message;
+
+    // Refresh UI
+    await loadRewards();
+    await loadAccount();
+});

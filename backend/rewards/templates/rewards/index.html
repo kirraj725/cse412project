@@ -17,7 +17,7 @@
     
         <button class="tab-button" data-tab="account-tab" style="display:none;">Account</button>
         <button class="tab-button" data-tab="rewards-tab" style="display:none;">Rewards</button>
-        <button class="tab-button" data-tab="stores-tab" style="display:none;">Stores & Restaurants</button>
+        <button class="tab-button" data-tab="stores-tab" style="display:none;">Purchase History</button>
         <button id="logout-button" class="tab-button" data-tab="logout-tab" style="display:none;">Log Out</button>
     </nav>
 </header>
@@ -73,40 +73,68 @@
         <h2>Rewards</h2>
         <p>Total Points: <span id="total-points">0</span></p>
 
-        <h3>Ledger Entries</h3>
+        <h3>Redeem Points for Store Credit</h3>
+
+        <form id="exchange-form">
+            <label>
+                Choose Store:
+                <select id="exchange-vendor">
+                    <option value="" disabled selected>Select…</option>
+                </select>
+            </label>
+
+            <label>
+                Select Credit Amount:
+                <select id="exchange-amount">
+                    <option value="" disabled selected><em>Select…</em></option>
+                    <option value="5">$5 Credit</option>
+                    <option value="10">$10 Credit</option>
+                    <option value="15">$15 Credit</option>
+                    <option value="25">$25 Credit</option>
+                    <option value="50">$50 Credit</option>
+                </select>                
+            </label>
+            <button type="submit">Redeem</button>
+        </form>
+
+        <p id="exchange-message" class="message"></p>
+
+        <h3>Your Rewards</h3>
+        <table id="rewards-table">
+            <thead>
+            <tr>
+                <th>Vendor</th>
+                <th>Balance ($)</th>
+                <th>Reward Expiration</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <h3>Points History</h3>
         <table id="ledger-table">
             <thead>
             <tr>
                 <th>Change</th>
                 <th>Reason</th>
                 <th>Date</th>
-                <th>Expiration</th>
+                <th class="expiration-col">Points Expiration</th>
             </tr>
             </thead>
             <tbody></tbody>
         </table>
 
-        <h3>Vendor Rewards</h3>
-        <table id="rewards-table">
-            <thead>
-            <tr>
-                <th>Vendor</th>
-                <th>Balance ($)</th>
-                <th>Expiration</th>
-            </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
     </section>
 
     <section id="stores-tab" class="tab">
-        <h2>Spending by Store / Restaurant</h2>
+        <h2>Your Purchases</h2>
         <table id="stores-table">
             <thead>
             <tr>
                 <th>Vendor</th>
                 <th>Category</th>
                 <th>Total Spent ($)</th>
+                <th>Date</th>
             </tr>
             </thead>
             <tbody></tbody>
@@ -116,4 +144,15 @@
 
 <script src="{% static 'reward-setup/app.js' %}"></script>
 </body>
+<div id="modal-overlay" class="modal-overlay">
+    <div class="modal-box">
+        <h3 id="modal-title">Confirm Exchange</h3>
+        <p id="modal-text"></p>
+
+        <div class="modal-buttons">
+            <button id="modal-cancel" class="modal-btn cancel-btn">Cancel</button>
+            <button id="modal-confirm" class="modal-btn confirm-btn">Confirm</button>
+        </div>
+    </div>
+</div>
 </html>

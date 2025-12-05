@@ -10,6 +10,10 @@ header {
     padding: 1rem;
 }
 
+#rewards-tab h3 {
+    margin-top: 40px;
+}
+
 header h1 {
     margin: 0 0 0.5rem 0;
 }
@@ -69,6 +73,11 @@ table {
     margin-top: 0.8rem;
 }
 
+.center-dash {
+    text-align: center !important;
+}
+
+
 th, td {
     border: 1px solid #ddd;
     padding: 0.4rem 0.6rem;
@@ -82,4 +91,49 @@ th {
 .message {
     margin-top: 0.5rem;
     color: red;
+}
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.modal-box {
+    background: white;
+    padding: 20px;
+    width: 350px;
+    border-radius: 10px;
+    text-align: center;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+.modal-buttons {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.confirm-btn {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+}
+
+#modal-cancel {
+    background: #ccc;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
 }

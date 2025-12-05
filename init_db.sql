@@ -51,7 +51,7 @@ CREATE TABLE ledger (
     l_userid INTEGER NOT NULL REFERENCES users(u_userid) ON DELETE CASCADE,
     l_transid INTEGER REFERENCES user_transactions(t_transid),
     l_changeamt INTEGER NOT NULL,
-    l_reason VARCHAR(20) NOT NULL,
+    l_reason VARCHAR(50) NOT NULL,
     l_date DATE NOT NULL,
     l_expiration DATE
 );
