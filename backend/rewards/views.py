@@ -87,12 +87,12 @@ def api_register(request):
     if User.objects.filter(email=email).exists():
         return JsonResponse({"error": "Email already registered"}, status=400)
 
-    user = User.objects.create_user(
+    user = User.objects.create_user( 
         email=email,
         name=name,
         phone=phone,
         password=password
-    )
+    ) # type: ignore
 
     return JsonResponse({
         "message": "User registered successfully",
