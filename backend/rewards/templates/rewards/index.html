@@ -10,14 +10,35 @@
 <header>
     <h1>Rewards Dashboard</h1>
     <nav>
-        <button class="tab-button" data-tab="register-tab">Register</button>
-        <button class="tab-button" data-tab="login-tab">Log In</button>
-        <button class="tab-button" data-tab="account-tab" disabled>Account</button>
-        <button class="tab-button" data-tab="rewards-tab" disabled>Rewards</button>
-        <button class="tab-button" data-tab="stores-tab" disabled>Stores & Restaurants</button>
+        <div id="auth-buttons">
+            <button class="tab-button" data-tab="login-tab">Log In</button>
+            <button class="tab-button" data-tab="register-tab">Register</button>
+        </div>
+    
+        <button class="tab-button" data-tab="account-tab" style="display:none;">Account</button>
+        <button class="tab-button" data-tab="rewards-tab" style="display:none;">Rewards</button>
+        <button class="tab-button" data-tab="stores-tab" style="display:none;">Stores & Restaurants</button>
+        <button id="logout-button" class="tab-button" data-tab="logout-tab" style="display:none;">Log Out</button>
     </nav>
 </header>
 <main>
+    <section id="login-tab" class="tab active">
+        <h2>Log In</h2>
+        <form id="login-form">
+            {% csrf_token %}
+            <label>
+                Email:
+                <input type="email" id="email" required>
+            </label>
+            <label>
+                Password:
+                <input type="password" id="password" required>
+            </label>
+            <button type="submit">Log In</button>
+        </form>
+        <p id="login-message" class="message"></p>
+    </section>
+
     <section id="register-tab" class="tab">
         <h2>Create an Account</h2>
         <form id="register-form">
@@ -41,23 +62,6 @@
             <button type="submit">Register</button>
         </form>
         <p id="register-message" class="message"></p>
-    </section>
-    
-    <section id="login-tab" class="tab active">
-        <h2>Log In</h2>
-        <form id="login-form">
-            {% csrf_token %}
-            <label>
-                Email:
-                <input type="email" id="email" required>
-            </label>
-            <label>
-                Password:
-                <input type="password" id="password" required>
-            </label>
-            <button type="submit">Log In</button>
-        </form>
-        <p id="login-message" class="message"></p>
     </section>
 
     <section id="account-tab" class="tab">

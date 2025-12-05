@@ -11,6 +11,9 @@ let currentUser = null;
 const tabButtons = document.querySelectorAll(".tab-button");
 const tabs = document.querySelectorAll(".tab");
 
+const logoutButton = document.getElementById("logout-button");
+const authButtons = document.getElementById("auth-buttons");
+
 tabButtons.forEach(btn => {
     btn.addEventListener("click", () => {
         const target = btn.getAttribute("data-tab");
@@ -20,13 +23,48 @@ tabButtons.forEach(btn => {
 });
 
 function enableTabsAfterLogin() {
+    authButtons.style.display = "none";
+
     document.querySelectorAll("nav .tab-button").forEach(btn => {
         const tab = btn.getAttribute("data-tab");
-        if (tab !== "login-tab") {
+        if (tab !== "login-tab" && tab !== "register-tab") {
             btn.disabled = false;
+            btn.style.display = "inline";
         }
     });
 }
+
+function disableTabsAfterLogout() {
+    authButtons.style.display = "inline"; // show login/register buttons
+    logoutButton.style.display = "none"; // hide logout
+
+    document.querySelectorAll("nav .tab-button").forEach(btn => {
+        const tab = btn.getAttribute("data-tab");
+        
+        if (tab === "login-tab" || tab === "register-tab") {
+            btn.disabled = false;
+            btn.style.display = "inline";
+        } else {
+            btn.disabled = true;
+            btn.style.display = "none";
+        }
+    });
+}
+
+function resetForms() {
+    // Clear login form
+    document.getElementById("email").value = "";
+    document.getElementById("password").value = "";
+    loginMessage.textContent = "";
+
+    // Clear register form
+    document.getElementById("reg-name").value = "";
+    document.getElementById("reg-email").value = "";
+    document.getElementById("reg-phone").value = "";
+    document.getElementById("reg-password").value = "";
+    registerMessage.textContent = "";
+}
+
 
 // Login
 const loginForm = document.getElementById("login-form");
@@ -73,6 +111,24 @@ loginForm.addEventListener("submit", async (e) => {
         loginMessage.textContent = "Network or server error.";
     }
 });
+
+// Handles logout
+logoutButton.addEventListener("click", async () => {
+    try {
+        await fetch("/api/logout/", { method: "POST" });
+    } catch (err) {
+        console.error("Logout failed:", err);
+    }
+
+    // Reset UI
+    resetForms();
+    disableTabsAfterLogout();
+    currentUser = null;
+
+    tabs.forEach(t => t.classList.remove("active"));
+    document.getElementById("login-tab").classList.add("active");
+});
+
 
 // Account tab
 async function loadAccount() {

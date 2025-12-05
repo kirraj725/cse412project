@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.db.models import Sum
 import json
 from .models import User, Vendor, UserTransaction, Reward, Ledger
@@ -219,3 +219,12 @@ def api_stores(request):
         })
 
     return JsonResponse(result, safe=False)
+
+
+@csrf_exempt
+def api_logout(request):
+    if request.method != "POST":
+        return JsonResponse({"detail": "POST required"}, status=400)
+
+    logout(request)
+    return JsonResponse({"message": "Logged out"})

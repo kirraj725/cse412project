@@ -18,7 +18,7 @@ nav {
     margin-top: 0.5rem;
 }
 
-nav .tab-button {
+nav .logout-button {
     margin-right: 0.5rem;
     padding: 0.4rem 0.8rem;
     border: none;
@@ -26,9 +26,12 @@ nav .tab-button {
     cursor: pointer;
 }
 
-nav .tab-button[disabled] {
-    opacity: 0.5;
-    cursor: not-allowed;
+nav .tab-button {
+    margin-right: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
 main {
