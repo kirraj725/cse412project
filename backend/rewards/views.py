@@ -312,9 +312,9 @@ def api_create_transaction(request):
 def api_stores(request):
     """
     GET /api/stores/
-    Returns list of spending per vendor for this user:
+    Returns list of individual purchase transactions:
     [
-      { "vendor_name": str, "category": str, "total_spent": float },
+      { "vendor_name": str, "category": str, "amount": float, "date": "YYYY-MM-DD" },
       ...
     ]
     """
@@ -326,22 +326,20 @@ def api_stores(request):
         return auth_error
 
     user = request.user
-
-    # Sum purchase amounts per vendor
-    qs = (
+    transactions = (
         UserTransaction.objects
-        .filter(user=user, transaction_type="PURCHASE")
-        .values("vendor__name", "vendor__category")
-        .annotate(total_spent=Sum("amount"))
-        .order_by("-total_spent")
+        .filter(user=user, transaction_type__iexact="purchase")
+        .select_related("vendor") 
+        .order_by("-date", "-trans_id")
     )
 
     result = []
-    for row in qs:
+    for row in transactions:
         result.append({
-            "vendor_name": row["vendor__name"],
-            "category": row["vendor__category"],
-            "total_spent": float(row["total_spent"]),
+            "vendor_name": row.vendor.name,
+            "category": row.vendor.category,
+            "amount": float(row.amount),  
+            "date": row.date.isoformat(), 
         })
 
     return JsonResponse(result, safe=False)
