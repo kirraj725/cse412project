@@ -11,15 +11,20 @@
     <h1>Rewards Dashboard</h1>
     <nav>
         <div id="auth-buttons">
-            <button class="tab-button" data-tab="login-tab">Log In</button>
-            <button class="tab-button" data-tab="register-tab">Register</button>
-        </div>
-    
-        <button class="tab-button" data-tab="account-tab" style="display:none;">Account</button>
-        <button class="tab-button" data-tab="rewards-tab" style="display:none;">Rewards</button>
-        <button class="tab-button" data-tab="stores-tab" style="display:none;">Purchase History</button>
-        <button id="logout-button" class="tab-button" data-tab="logout-tab" style="display:none;">Log Out</button>
-    </nav>
+        <button class="tab-button" data-tab="login-tab">Log In</button>
+        <button class="tab-button" data-tab="register-tab">Register</button>
+    </div>
+
+    <button class="tab-button" data-tab="account-tab" style="display:none;">Account</button>
+    <button class="tab-button" data-tab="rewards-tab" style="display:none;">Rewards</button>
+    <button class="tab-button" data-tab="stores-tab" style="display:none;">Purchase History</button>
+
+    <button class="tab-button" data-tab="add-transaction-tab" id="add-transaction-tab-button" style="display:none;">
+        Add Transaction
+    </button>
+
+    <button id="logout-button" class="tab-button" data-tab="logout-tab" style="display:none;">Log Out</button>
+</nav>
 </header>
 <main>
     <section id="login-tab" class="tab active">
@@ -140,10 +145,65 @@
             <tbody></tbody>
         </table>
     </section>
+
+    <section id="add-transaction-tab" class="tab">
+        <h2>Add Transaction (Admin Only)</h2>
+
+        <form id="add-transaction-form">
+            {% csrf_token %}
+            <div class="form-row">
+                <label for="transaction-user-select">
+                    User:
+                    <select id="transaction-user-select" required>
+                    </select>
+                </label>
+            </div>
+
+            <div class="form-row">
+                <label for="transaction-vendor-select">
+                    Vendor:
+                    <select id="transaction-vendor-select" required>
+                    </select>
+                </label>
+            </div>
+
+            <div class="form-row">
+                <label for="transaction-type">
+                    Type:
+                    <select id="transaction-type">
+                        <option value="PURCHASE">Purchase</option>
+                        <option value="REFUND">Refund</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="form-row">
+                <label for="transaction-amount">
+                    Amount ($):
+                    <input type="number" id="transaction-amount" step="0.01" min="0" required>
+                </label>
+            </div>
+
+            <div class="form-row">
+                <label for="transaction-location">
+                    Location:
+                    <input type="text" id="transaction-location" placeholder="Tempe, AZ">
+                </label>
+            </div>
+
+            <div class="form-row">
+                <label for="transaction-date">
+                    Date:
+                    <input type="date" id="transaction-date">
+                </label>
+            </div>
+
+            <button type="submit">Create Transaction</button>
+            <p id="add-transaction-message" class="message"></p>
+        </form>
+    </section>
 </main>
 
-<script src="{% static 'reward-setup/app.js' %}"></script>
-</body>
 <div id="modal-overlay" class="modal-overlay">
     <div class="modal-box">
         <h3 id="modal-title">Confirm Exchange</h3>
@@ -155,4 +215,7 @@
         </div>
     </div>
 </div>
+
+<script src="{% static 'reward-setup/app.js' %}"></script>
+</body>
 </html>

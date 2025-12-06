@@ -31,4 +31,7 @@ urlpatterns = [
     path("api/vendors/", rewards_views.api_vendors, name='api_vendors'),
     path("api/exchange/", rewards_views.api_exchange, name="api_exchange"),
     path("api/logout/", rewards_views.api_logout, name="api_logout"),
+    path('api/users/', rewards_views.api_users, name='api_users'),
+    path('api/transactions/create/', rewards_views.api_create_transaction, name='api_create_transaction'),
 ]
+

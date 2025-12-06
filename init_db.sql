@@ -14,6 +14,7 @@ CREATE TABLE users (
     u_phone VARCHAR(15) NOT NULL,
     u_password VARCHAR(128) NOT NULL,
     u_totalpoints INTEGER NOT NULL DEFAULT 0,
+    u_isadmin BOOLEAN DEFAULT FALSE,
     -- required for Django auth:
     last_login TIMESTAMP WITH TIME ZONE,
     date_joined TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -58,8 +59,8 @@ CREATE TABLE ledger (
 
 
 --  Populate Sample Data
-INSERT INTO users (u_userid, u_name, u_email, u_phone, u_password, u_totalpoints) VALUES
-(1, 'Alice Johnson', 'alice@gmail.com', '4801234567', 'pbkdf2_sha256$1000000$xoAtRKJppPayHRgo8gDTJ0$gwhLURWOLxG8xIq3pXBzSTTKsOy9C/5Or33haCU0Hok=', 10934),
+INSERT INTO users (u_userid, u_name, u_email, u_phone, u_password, u_totalpoints, u_isadmin) VALUES
+(1, 'Alice Johnson', 'alice@gmail.com', '4801234567', 'pbkdf2_sha256$1000000$xoAtRKJppPayHRgo8gDTJ0$gwhLURWOLxG8xIq3pXBzSTTKsOy9C/5Or33haCU0Hok=', 10934, TRUE),
 (2, 'Bob Smith', 'bob@gmail.com', '4809876543', 'pbkdf2_sha256$1000000$qw68henmEsqeoKsP2uLnF0$Zl4cmEwsz1o+3gkBYCBYQ3oHaaHI/R1O5prsqUH2TM4=', 8850),
 (3, 'Catherine Lee', 'catherine@gmail.com', '6021237788', 'pbkdf2_sha256$1000000$ijrJlLeMKiCkuHdN1o8puc$2tFsgA+poxrFf7K0BB/ki/SU6wzWW3tOMGfjy6+U9bY=', 16624),
 (4, 'David Kim', 'davidk@gmail.com', '6029871111', 'pbkdf2_sha256$1000000$sKvXqjLebvRKB1075JpRgm$/D/b9eJPYpcElx9FNSe1Wt/uBWEHz29aRaCTE30DQMM=', 6420),

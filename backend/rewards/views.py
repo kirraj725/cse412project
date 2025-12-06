@@ -3,9 +3,16 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import Sum
+from django.utils import timezone
 import json
+from decimal import Decimal
+from datetime import timedelta, date
 from .models import User, Vendor, UserTransaction, Reward, Ledger
 
+ADMIN_EMAILS = {"alice@gmail.com"}
+
+def is_admin(user):
+    return bool(user and (user.is_staff or user.is_superuser or user.email in ADMIN_EMAILS))
 
 def index(request):
     """Render the main single-page frontend."""
@@ -109,12 +116,8 @@ def api_account(request):
     GET /api/account/
     Returns current user's basic info.
     """
-    if request.method != "GET":
-        return JsonResponse({"detail": "Method not allowed"}, status=405)
-
-    auth_error = _require_auth(request)
-    if auth_error:
-        return auth_error
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Not logged in"}, status=401)
 
     user = request.user
     data = {
@@ -123,6 +126,7 @@ def api_account(request):
         "email": user.email,
         "phone": user.phone,
         "total_points": user.total_points,
+        "is_admin": is_admin(user),
     }
     return JsonResponse(data)
 
@@ -180,6 +184,128 @@ def api_rewards(request):
         "total_points": total_points,
         "ledger": ledger_list,
         "rewards": rewards_list,
+    })
+
+@csrf_exempt
+def api_users(request):
+    if not request.user.is_authenticated or not is_admin(request.user):
+        return JsonResponse({"error": "Forbidden"}, status=403)
+
+    users = User.objects.all().order_by("name")
+    data = [
+        {
+            "id": u.id,
+            "name": u.name,
+            "email": u.email,
+            "total_points": u.total_points,
+        }
+        for u in users
+    ]
+    return JsonResponse({"users": data})
+
+@csrf_exempt
+def api_create_transaction(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    if not request.user.is_authenticated or not is_admin(request.user):
+        return JsonResponse({"error": "Forbidden"}, status=403)
+
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    user_id = payload.get("user_id")
+    vendor_id = payload.get("vendor_id")
+    amount_str = payload.get("amount")
+
+    if not user_id or not vendor_id or not amount_str:
+        return JsonResponse({"error": "user_id, vendor_id, and amount are required"}, status=400)
+
+    try:
+        user_id = int(user_id)
+        vendor_id = int(vendor_id)
+    except (TypeError, ValueError):
+        return JsonResponse({"error": "Invalid user_id or vendor_id"}, status=400)
+
+    try:
+        amount = Decimal(str(amount_str))
+    except Exception:
+        return JsonResponse({"error": "Amount must be a number"}, status=400)
+
+    # Transaction type
+    transaction_type = (payload.get("transaction_type") or "PURCHASE").upper()
+    if transaction_type not in ("PURCHASE", "REFUND"):
+        return JsonResponse({"error": "Invalid transaction type"}, status=400)
+
+    location = payload.get("location") or "Tempe, AZ"
+
+    date_str = payload.get("date")
+    if date_str:
+        try:
+            tx_date = date.fromisoformat(date_str)
+        except ValueError:
+            return JsonResponse({"error": "Invalid date format (expected YYYY-MM-DD)"}, status=400)
+    else:
+        tx_date = timezone.now().date()
+
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return JsonResponse({"error": "User not found"}, status=404)
+
+    try:
+        vendor = Vendor.objects.get(vendor_id=vendor_id)
+    except Vendor.DoesNotExist:
+        return JsonResponse({"error": "Vendor not found"}, status=404)
+
+    tx = UserTransaction.objects.create(
+        user=user,
+        vendor=vendor,
+        transaction_type=transaction_type,
+        amount=amount,
+        location=location,
+        date=tx_date,
+    )
+    change_amount = int(amount * 100)
+
+    if transaction_type == "REFUND" and change_amount > 0:
+        change_amount = -change_amount
+
+    if change_amount >= 0:
+        reason = "Purchase Points"
+        expiration_date = tx_date + timedelta(days=365)
+    else:
+        reason = "Refund"
+        expiration_date = None
+
+    Ledger.objects.create(
+        user=user,
+        transaction=tx,
+        change_amount=change_amount,
+        reason=reason,
+        date=tx_date,
+        expiration_date=expiration_date,
+    )
+
+    user.total_points = user.total_points + change_amount
+    user.save()
+
+    return JsonResponse({
+        "success": True,
+        "transaction": {
+            "id": tx.trans_id,
+            "user_id": user.id,
+            "user_name": user.name,
+            "vendor_id": vendor.vendor_id,
+            "vendor_name": vendor.name,
+            "transaction_type": tx.transaction_type,
+            "amount": str(tx.amount),
+            "location": tx.location,
+            "date": tx.date.isoformat(),
+        },
+        "new_total_points": user.total_points,
     })
 
 
@@ -292,9 +418,20 @@ def api_exchange(request):
     })
 
 def api_vendors(request):
-    vendors = Vendor.objects.all().values("vendor_id", "name", "category")
-    return JsonResponse(list(vendors), safe=False)
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Authentication required"}, status=401)
 
+    vendors = Vendor.objects.all().order_by("name")
+    data = [
+        {
+            "vendor_id": v.vendor_id,
+            "name": v.name,
+            "category": v.category,
+        }
+        for v in vendors
+    ]
+    return JsonResponse(data, safe=False)
+   
 @csrf_exempt
 def api_logout(request):
     if request.method != "POST":

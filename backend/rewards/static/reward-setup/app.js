@@ -6,6 +6,8 @@ const API_STORES  = "/api/stores/";
 const API_VENDORS  = "/api/vendors/";
 const API_REGISTER = "/api/register/";
 const API_EXCHANGE = "/api/exchange/";
+const API_USERS   = "/api/users/";
+const API_CREATE_TX = "/api/transactions/create/";
 
 let currentUser = null;
 
@@ -29,16 +31,26 @@ function enableTabsAfterLogin() {
 
     document.querySelectorAll("nav .tab-button").forEach(btn => {
         const tab = btn.getAttribute("data-tab");
-        if (tab !== "login-tab" && tab !== "register-tab") {
-            btn.disabled = false;
-            btn.style.display = "inline";
+
+        if (tab === "login-tab" || tab === "register-tab") {
+            btn.disabled = true;
+            btn.style.display = "none";
+            return;
         }
+        if (btn.id === "add-transaction-tab-button") {
+            btn.disabled = true;
+            btn.style.display = "none";
+            return;
+        }
+        btn.disabled = false;
+        btn.style.display = "inline";
     });
 }
 
+
 function disableTabsAfterLogout() {
-    authButtons.style.display = "inline"; // show login/register buttons
-    logoutButton.style.display = "none"; // hide logout
+    authButtons.style.display = "inline"; 
+    logoutButton.style.display = "none"; 
 
     document.querySelectorAll("nav .tab-button").forEach(btn => {
         const tab = btn.getAttribute("data-tab");
@@ -153,8 +165,6 @@ logoutButton.addEventListener("click", async () => {
     tabs.forEach(t => t.classList.remove("active"));
     document.getElementById("login-tab").classList.add("active");
 });
-
-
 // Account tab
 async function loadAccount() {
     try {
@@ -162,6 +172,8 @@ async function loadAccount() {
         if (!res.ok) return;
 
         const data = await res.json();
+        currentUser = data;  // keep latest account info
+
         const div = document.getElementById("account-info");
         div.innerHTML = `
             <p><strong>Name:</strong> ${data.name}</p>
@@ -169,10 +181,63 @@ async function loadAccount() {
             <p><strong>Phone:</strong> ${data.phone}</p>
             <p><strong>Total Points:</strong> ${data.total_points}</p>
         `;
+
+        const adminTabBtn = document.getElementById("add-transaction-tab-button");
+        if (data.is_admin) {
+            // show and enable admin tab
+            adminTabBtn.style.display = "inline";
+            adminTabBtn.disabled = false;
+            loadAdminDropdowns();
+        } else {
+
+            adminTabBtn.style.display = "none";
+            adminTabBtn.disabled = true;
+        }
     } catch (err) {
         console.error(err);
     }
 }
+async function loadAdminDropdowns() {
+    try {
+        const resUsers = await fetch(API_USERS);
+        if (resUsers.ok) {
+            const dataUsers = await resUsers.json();
+            const users = dataUsers.users || [];
+
+            const userSelect = document.getElementById("transaction-user-select");
+            userSelect.innerHTML = "";
+
+            users.forEach(u => {
+                const opt = document.createElement("option");
+                opt.value = u.id;
+                opt.textContent = `${u.name} (${u.email})`;
+                userSelect.appendChild(opt);
+            });
+        }
+    } catch (err) {
+        console.error("Failed to load users:", err);
+    }
+
+    try {
+        const resVendors = await fetch(API_VENDORS);
+        if (resVendors.ok) {
+            const dataVendors = await resVendors.json();
+            const vendorSelect = document.getElementById("transaction-vendor-select");
+            vendorSelect.innerHTML = "";
+
+            (dataVendors || []).forEach(v => {
+                const opt = document.createElement("option");
+                const vid = v.vendor_id || v.id || v.vendorId;
+                opt.value = vid;
+                opt.textContent = `${v.name} ${v.category ? "[" + v.category + "]" : ""}`;
+                vendorSelect.appendChild(opt);
+            });
+        }
+    } catch (err) {
+        console.error("Failed to load vendors for admin:", err);
+    }
+}
+
 
 // Rewards tab
 async function loadRewards() {
