@@ -61,15 +61,15 @@ CREATE TABLE ledger (
 --  Populate Sample Data
 INSERT INTO users (u_userid, u_name, u_email, u_phone, u_password, u_totalpoints, u_isadmin) VALUES
 (1, 'Alice Johnson', 'alice@gmail.com', '4801234567', 'pbkdf2_sha256$1000000$xoAtRKJppPayHRgo8gDTJ0$gwhLURWOLxG8xIq3pXBzSTTKsOy9C/5Or33haCU0Hok=', 10934, TRUE),
-(2, 'Bob Smith', 'bob@gmail.com', '4809876543', 'pbkdf2_sha256$1000000$qw68henmEsqeoKsP2uLnF0$Zl4cmEwsz1o+3gkBYCBYQ3oHaaHI/R1O5prsqUH2TM4=', 8850),
-(3, 'Catherine Lee', 'catherine@gmail.com', '6021237788', 'pbkdf2_sha256$1000000$ijrJlLeMKiCkuHdN1o8puc$2tFsgA+poxrFf7K0BB/ki/SU6wzWW3tOMGfjy6+U9bY=', 16624),
-(4, 'David Kim', 'davidk@gmail.com', '6029871111', 'pbkdf2_sha256$1000000$sKvXqjLebvRKB1075JpRgm$/D/b9eJPYpcElx9FNSe1Wt/uBWEHz29aRaCTE30DQMM=', 6420),
-(5, 'Ella Martinez', 'ella@gmail.com', '5202229999', 'pbkdf2_sha256$1000000$oTeB3rUYUXUYQCYtrDNX25$3PToLOGRt39/GdntbXt9U/uxKJIOkFvwvH+CsIFLHMQ=', 19999),
-(6, 'Frank Wu', 'frankwu@gmail.com', '4806662323', 'pbkdf2_sha256$1000000$P28yHfy6FLdR5ooF1HwQ3J$WxyNrCBENlajjLiaYijQ7MZnxrYWdl/VYMrx+2zwC6M=', 12275),
-(7, 'Grace Chen', 'gracec@gmail.com', '6235558899', 'pbkdf2_sha256$1000000$eRGiDZUlY5zC9Zd6UH1yZe$RQG7YhSICBOhqFcPXpkuKygLgjS04mzx553hS/4ZyRE=', 3497),
-(8, 'Henry Lopez', 'henrylopez@gmail.com', '9281114477', 'pbkdf2_sha256$1000000$bKOWwHCquMYHrpNZcsGpQY$dXpvg5AVyba60ql5CBkxPmflpAxq/ZkPP8/d7N0IOrQ=', 21550),
-(9, 'Isabella Patel', 'isabella@gmail.com', '4803142000', 'pbkdf2_sha256$1000000$bYnnITmzhFGki6QYgOVR3B$FUuwKz7HJHTgBY8TIlOOFMDZgPVTy9weXFihj1VcQMs=', 4750),
-(10, 'Jack Wilson', 'jackw@gmail.com', '6025551212', 'pbkdf2_sha256$1000000$cqaGijB298fGN5lrWfQtKU$1euIH+AqpvUmgk9mmhFnngKaPmmTLVxtSKhxjNKsp1M=', 30865);
+(2, 'Bob Smith', 'bob@gmail.com', '4809876543', 'pbkdf2_sha256$1000000$qw68henmEsqeoKsP2uLnF0$Zl4cmEwsz1o+3gkBYCBYQ3oHaaHI/R1O5prsqUH2TM4=', 8850, FALSE),
+(3, 'Catherine Lee', 'catherine@gmail.com', '6021237788', 'pbkdf2_sha256$1000000$ijrJlLeMKiCkuHdN1o8puc$2tFsgA+poxrFf7K0BB/ki/SU6wzWW3tOMGfjy6+U9bY=', 16624, FALSE),
+(4, 'David Kim', 'davidk@gmail.com', '6029871111', 'pbkdf2_sha256$1000000$sKvXqjLebvRKB1075JpRgm$/D/b9eJPYpcElx9FNSe1Wt/uBWEHz29aRaCTE30DQMM=', 6420, FALSE),
+(5, 'Ella Martinez', 'ella@gmail.com', '5202229999', 'pbkdf2_sha256$1000000$oTeB3rUYUXUYQCYtrDNX25$3PToLOGRt39/GdntbXt9U/uxKJIOkFvwvH+CsIFLHMQ=', 19999, FALSE),
+(6, 'Frank Wu', 'frankwu@gmail.com', '4806662323', 'pbkdf2_sha256$1000000$P28yHfy6FLdR5ooF1HwQ3J$WxyNrCBENlajjLiaYijQ7MZnxrYWdl/VYMrx+2zwC6M=', 12275, FALSE),
+(7, 'Grace Chen', 'gracec@gmail.com', '6235558899', 'pbkdf2_sha256$1000000$eRGiDZUlY5zC9Zd6UH1yZe$RQG7YhSICBOhqFcPXpkuKygLgjS04mzx553hS/4ZyRE=', 3497, FALSE),
+(8, 'Henry Lopez', 'henrylopez@gmail.com', '9281114477', 'pbkdf2_sha256$1000000$bKOWwHCquMYHrpNZcsGpQY$dXpvg5AVyba60ql5CBkxPmflpAxq/ZkPP8/d7N0IOrQ=', 21550, FALSE),
+(9, 'Isabella Patel', 'isabella@gmail.com', '4803142000', 'pbkdf2_sha256$1000000$bYnnITmzhFGki6QYgOVR3B$FUuwKz7HJHTgBY8TIlOOFMDZgPVTy9weXFihj1VcQMs=', 4750, FALSE),
+(10, 'Jack Wilson', 'jackw@gmail.com', '6025551212', 'pbkdf2_sha256$1000000$cqaGijB298fGN5lrWfQtKU$1euIH+AqpvUmgk9mmhFnngKaPmmTLVxtSKhxjNKsp1M=', 30865, FALSE);
 
 INSERT INTO vendors VALUES
 (1, 'Starbucks', 'Restaurant'),
