@@ -275,7 +275,7 @@ async function loadStores() {
             tr.innerHTML = `
                 <td>${item.vendor_name}</td>
                 <td>${item.category || ""}</td>
-                <td>${Number(item.total_spent).toFixed(2)}</td>
+                <td>${Number(item.amount).toFixed(2)}</td>
                 <td>${item.date || ""}</td>
             `;
             tbody.appendChild(tr);

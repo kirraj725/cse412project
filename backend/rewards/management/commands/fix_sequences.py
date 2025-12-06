@@ -5,7 +5,6 @@ class Command(BaseCommand):
     help = 'Resets PostgreSQL primary key sequences to match the current max ID.'
 
     def handle(self, *args, **options):
-        # A list of your table names and their primary key columns
         # format: (table_name, primary_key_column)
         tables_to_fix = [
             ('users', 'u_userid'),
