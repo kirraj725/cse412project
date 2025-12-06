@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login, logout
-from django.db.models import Sum
+from django.db.models import Sum, Max
 from django.utils import timezone
 import json
 from decimal import Decimal
@@ -259,8 +259,12 @@ def api_create_transaction(request):
         vendor = Vendor.objects.get(vendor_id=vendor_id)
     except Vendor.DoesNotExist:
         return JsonResponse({"error": "Vendor not found"}, status=404)
+    
+    max_id = UserTransaction.objects.aggregate(Max("trans_id"))["trans_id__max"] or 0
+    next_id = max_id + 1
 
     tx = UserTransaction.objects.create(
+        trans_id=next_id,
         user=user,
         vendor=vendor,
         transaction_type=transaction_type,
@@ -279,8 +283,12 @@ def api_create_transaction(request):
     else:
         reason = "Refund"
         expiration_date = None
+    
+    max_ledger_id = Ledger.objects.aggregate(Max("ledger_id"))["ledger_id__max"] or 0
+    next_ledger_id = max_ledger_id + 1
 
     Ledger.objects.create(
+        ledger_id=next_ledger_id,
         user=user,
         transaction=tx,
         change_amount=change_amount,
@@ -399,7 +407,11 @@ def api_exchange(request):
     reward_obj.save()
 
     from datetime import date
+    max_ledger_id = Ledger.objects.aggregate(Max("ledger_id"))["ledger_id__max"] or 0
+    next_ledger_id = max_ledger_id + 1
+
     Ledger.objects.create(
+        ledger_id=next_ledger_id,
         user=user,
         transaction=None,
         change_amount=-cost_points,

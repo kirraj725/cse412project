@@ -149,15 +149,12 @@ loginForm.addEventListener("submit", async (e) => {
     }
 });
 
-// Handles logout
 logoutButton.addEventListener("click", async () => {
     try {
         await fetch("/api/logout/", { method: "POST" });
     } catch (err) {
         console.error("Logout failed:", err);
     }
-
-    // Reset UI
     resetForms();
     disableTabsAfterLogout();
     currentUser = null;
@@ -165,7 +162,7 @@ logoutButton.addEventListener("click", async () => {
     tabs.forEach(t => t.classList.remove("active"));
     document.getElementById("login-tab").classList.add("active");
 });
-// Account tab
+
 async function loadAccount() {
     try {
         const res = await fetch(API_ACCOUNT);
@@ -350,7 +347,6 @@ async function loadStores() {
     }
 }
 
-// Register
 const registerForm = document.getElementById("register-form");
 const registerMessage = document.getElementById("register-message");
 
@@ -441,3 +437,69 @@ exchangeForm.addEventListener("submit", async (e) => {
     await loadRewards();
     await loadAccount();
 });
+
+// Admin: Add Transaction
+const addTxButton = document.getElementById("create-transaction-button");
+const addTxMessage = document.getElementById("add-transaction-message");
+
+if (addTxButton) {
+    console.log("Admin button found, attaching click handler");
+
+    addTxButton.addEventListener("click", async () => {
+        addTxMessage.textContent = "";
+        addTxMessage.style.color = "red";
+
+        const user_id = document.getElementById("transaction-user-select").value;
+        const vendor_id = document.getElementById("transaction-vendor-select").value;
+        const transaction_type = document.getElementById("transaction-type").value;
+        const amount = document.getElementById("transaction-amount").value;
+        const location = document.getElementById("transaction-location").value || "Tempe, AZ";
+        const date = document.getElementById("transaction-date").value;  // optional
+
+        if (!user_id || !vendor_id || !amount) {
+            addTxMessage.textContent = "Please fill in user, vendor, and amount.";
+            return;
+        }
+
+        try {
+            const res = await fetch(API_CREATE_TX, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    user_id,
+                    vendor_id,
+                    transaction_type,
+                    amount,
+                    location,
+                    date
+                })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || !data.success) {
+                addTxMessage.textContent = data.error || "Failed to create transaction.";
+                return;
+            }
+
+            addTxMessage.style.color = "green";
+            addTxMessage.textContent =
+                `Transaction created for ${data.transaction.user_name} at ` +
+                `${data.transaction.vendor_name}. New points: ${data.new_total_points}`;
+
+            // Refresh UI from DB
+            await loadRewards();
+            await loadStores();
+            await loadAccount();
+
+        } catch (err) {
+            console.error(err);
+            addTxMessage.textContent = "Network or server error.";
+        }
+    });
+} else {
+    console.log("Admin button NOT found on page");
+}
+
